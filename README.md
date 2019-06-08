@@ -2,6 +2,7 @@ Two players Pong
 
 
 -------------Controls-------------
+
 Left player:
 	w - change dirrection UP
 	s - change dirrection DOWN
