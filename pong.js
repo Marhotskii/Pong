@@ -57,6 +57,7 @@ class Player extends Rect
 	{
 		super(20, 100);
 		this.score = 0;
+		this.speed = 0;
 	}
 
 }
@@ -129,8 +130,13 @@ class Pong
 			const len = ball.vel.len;
 			ball.vel.y += 300 * (Math.random() - .5);
 			ball.vel.x = -ball.vel.x;
-			ball.vel.len = len * 1.05;
+			ball.vel.len = len * 1.015;
 		}
+
+		if (player.top < 0 || player.bottom > canvas.height){
+			player.speed = -player.speed;
+		}
+
 	}
 	draw()
 	{
@@ -171,6 +177,13 @@ class Pong
 
 		this.ball.vel.x = 0;
 		this.ball.vel.y = 0;
+		this.players.forEach(player => {
+			player.speed = 0;
+			player.pos.y = this._canvas.height / 2;
+		});
+		this.players[0].pos.x = 40;
+		this.players[1].pos.x = canvas.width - 40;
+		
 	}
 
 	start()
@@ -179,11 +192,17 @@ class Pong
 			this.ball.vel.x = 200 * (Math.random() > .5 ? 1 : -1);
 			this.ball.vel.y = 300 * (Math.random() * 2 -1);
 			this.ball.vel.len = 200;
+			this.players.forEach(player => {
+				player.speed = 225;
+			});
 		}
 	}
 	update(dt) {
 		this.ball.pos.x += this.ball.vel.x * dt;
 		this.ball.pos.y += this.ball.vel.y * dt;
+		this.players.forEach(player => {
+			player.pos.y += player.speed * dt;
+		})
 
 		if (this.ball.left < 0 || this.ball.right > this._canvas.width) {
 			const playerId = this.ball.vel.x < 0 | 0;
@@ -195,8 +214,6 @@ class Pong
 			this.ball.vel.y = - this.ball.vel.y;
 		}
 
-		this.players[1].pos.y = this.ball.pos.y;
-
 		this.draw();
 
 		this.players.forEach(player => this.collide(player, this.ball));
@@ -206,11 +223,21 @@ class Pong
 const canvas = document.getElementById('pong');
 const pong = new Pong(canvas);
 
-canvas.addEventListener('mousemove', event => {
-	const scale = event.offsetY / event.target.getBoundingClientRect().height;
-	pong.players[0].pos.y = canvas.height * scale;
-});
-
-canvas.addEventListener('click', event => {
-	pong.start();
-});
+document.addEventListener('keydown', event => {
+	console.log(event);
+	if (event.keyCode == 32) {
+		pong.start();
+	}
+	if (event.keyCode == 83 && (pong.players[0].speed < 0)) {
+		pong.players[0].speed = -pong.players[0].speed;
+	}
+	if (event.keyCode == 87 && (pong.players[0].speed > 0)) {
+		pong.players[0].speed = -pong.players[0].speed;
+	}
+	if (event.keyCode == 40 && (pong.players[1].speed < 0)) {
+		pong.players[1].speed = -pong.players[1].speed;
+	}
+	if (event.keyCode == 38 && (pong.players[1].speed > 0)) {
+		pong.players[1].speed = -pong.players[1].speed;
+	}
+})
